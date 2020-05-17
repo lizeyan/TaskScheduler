@@ -31,7 +31,7 @@ pip install -r requirements-dev.txt
 ```
 ## Contributing
 ### TODO Features
-- [ ] passing function outputs
+- [ ] record function outputs
 - [ ] function style examples
 - [ ] lazy evaluation task templates
 

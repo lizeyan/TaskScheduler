@@ -48,6 +48,7 @@ With TaskScheduler you can define a project with tasks which have some dependenc
     project_urls={
         "Bug Tracker": "https://github.com/lizeyan/TaskScheduler/issues",
         "Source Code": "https://github.com/lizeyan/TaskScheduler",
+        "Documentation": "https://ts.lizeyan.me",
     },
     install_requires=parse_requirements('requirements.txt'),
     classifiers=[

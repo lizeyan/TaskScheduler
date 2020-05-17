@@ -1,5 +1,5 @@
 from collections import defaultdict, OrderedDict
-from functools import reduce
+from functools import reduce, partial
 from itertools import product
 from pathlib import Path
 from typing import Union, Callable, Iterable, Tuple, List, Dict
@@ -19,6 +19,12 @@ reserved_keywords = [
     '__dependency__', '__d',
     '__target__', '__t',
 ]
+
+
+def __if_func_accept_kwargs(func):
+    import inspect
+    x = inspect.signature(func)
+    return any(_.kind == inspect.Parameter.VAR_KEYWORD for _ in x.parameters.values())
 
 
 def _render(
@@ -89,7 +95,7 @@ def task(
         )
     elif callable(runner):
         ret = CallableTask(
-            function=runner,
+            function=runner if not __if_func_accept_kwargs(runner) else partial(runner, **template_kwargs),
             name=_render(name, template_kwargs),
             dependencies=depend_tasks
         )

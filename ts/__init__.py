@@ -1,3 +1,6 @@
+"""
+Task Scheduler module
+"""
 from subprocess import getoutput
 
 from .UI import *

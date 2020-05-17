@@ -97,6 +97,9 @@ class CallableTask(Task):
     def __str__(self):
         return self.name
 
+    def need_rerun(self, time: float = None) -> bool:
+        return True
+
     def __init__(
             self, function: Callable, name: str = None,
             dependencies: Iterable[Task] = None,
@@ -115,16 +118,17 @@ class CallableTask(Task):
 
     def __call__(self, *args, **kwargs):
         try:
-            ret = self.__function(*args, **kwargs)
+            self._result = self.__function(*[_.result for _ in self.dependencies], *args, **kwargs)
         except Exception as e:
             return False, e
         else:
-            return True, ret
+            return True, self.result
 
 
 class GenerateFileTask(Task):
     def __call__(self, *args, **kwargs) -> Tuple[bool, Any]:
-        return self.base()
+        self._result = self.base()
+        return self._result
 
     def __str__(self):
         return f"Generate {self.path}<-{self.base}"
@@ -147,7 +151,8 @@ class GenerateFileTask(Task):
 
 class ReadFileTask(Task):
     def __call__(self, *args, **kwargs) -> Tuple[bool, Any]:
-        return self.path.exists(), None
+        self._result = self.path.exists()
+        return self._result, None
 
     def __init__(self, path: Path, dependencies: Iterable[Task] = None):
         super().__init__(
