@@ -2,12 +2,25 @@ from collections import defaultdict, OrderedDict
 from functools import reduce, partial
 from itertools import product
 from pathlib import Path
-from typing import Union, Callable, Iterable, Tuple, List, Dict
+from typing import Union, Callable, Iterable, Tuple, List, Dict, Set
 
 from jinja2 import Template
 from loguru import logger
 
 from ..tasks import Task, ShellTask, CallableTask, ReadFileTask, GenerateFileTask
+
+
+def clear():
+    global _task_target_file_dict
+    global _task_builder_global_tasks
+    global _task_dependency_file_dict
+    global _drop_if_not_used
+    _task_builder_global_tasks = set()
+    _task_target_file_dict = {}
+    _task_dependency_file_dict = defaultdict(list)
+    _drop_if_not_used = set()
+    Task.clear()
+
 
 _task_builder_global_tasks = set()  # type: Set[Task]
 _task_target_file_dict = {}  # type: Dict[Path, Task]

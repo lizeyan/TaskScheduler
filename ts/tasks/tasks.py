@@ -6,6 +6,10 @@ from typing import Iterable, Callable, Tuple, Any, Set
 class Task(object):
     __name_to_instance = {}
 
+    @staticmethod
+    def clear():
+        Task.__name_to_instance = {}
+
     def __new__(cls, *args, **kwargs):
         instance = super().__new__(cls)
         instance.__init__(*args, **kwargs)

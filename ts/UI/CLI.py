@@ -5,8 +5,8 @@ from pathlib import Path
 import click
 from loguru import logger
 
-import ts
-from .task_builder import _all_built_tasks
+from .task_builder import _all_built_tasks, clear
+from ..__init__ import __version__, __version_minor__
 from ..project import Project
 from ..tasks import Task
 
@@ -30,7 +30,7 @@ from ..tasks import Task
 @click.pass_context
 def cli(ctx, ts_file, debug, working_directory, version):
     if version:
-        print(ts.__version__, ts.__version_minor__)
+        print(__version__, __version_minor__)
         return
     os.chdir(working_directory)
     logger.remove()
@@ -41,6 +41,7 @@ def cli(ctx, ts_file, debug, working_directory, version):
     )
     ts_file = Path(ts_file)
     with open(str(ts_file.resolve()), 'r') as f:
+        clear()
         exec(f.read())
     ctx.ensure_object(dict)
     ctx.obj['project'] = Project(

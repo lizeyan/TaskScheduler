@@ -16,3 +16,4 @@ def str_product(template: str, **kwargs) -> List[str]:
     keys = list(kwargs.keys())
     values_list = list(kwargs.values())
     return apply(str(template))
+
