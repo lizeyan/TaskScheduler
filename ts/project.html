@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>ts.project API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>ts.project</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import json
+import os
+import time
+from concurrent.futures.thread import ThreadPoolExecutor
+from functools import reduce
+from pathlib import Path
+from threading import Condition
+from typing import Iterable, Union, Dict, Set
+
+from loguru import logger
+
+from .DAG import DAG
+from .tasks import Task
+
+
+class ProjectHistory(object):
+    &#34;&#34;&#34;
+    Save a Project running status
+    &#34;&#34;&#34;
+
+    def __init__(self, path=Path(&#39;.ts.history&#39;)):
+        self._database = {}  # type: Dict[str, float]
+        self._path = path
+
+    @staticmethod
+    def load(path: Path) -&gt; &#39;ProjectHistory&#39;:
+        &#34;&#34;&#34;
+        :param path: If path is not valid, a new ProjectHistory will be created
+        :return:
+        &#34;&#34;&#34;
+        try:
+            with open(str(path.resolve()), &#39;r&#39;) as f:
+                database = json.load(f)
+        except FileNotFoundError:
+            database = {}
+        ret = ProjectHistory(path=path)
+        ret._database = database
+        return ret
+
+    def save(self):
+        &#34;&#34;&#34;
+        Save ProjectHistory to the given path
+        :return:
+        &#34;&#34;&#34;
+        with open(str(self._path.resolve()), &#39;w+&#39;) as f:
+            json.dump(self._database, f, indent=4)
+        return self
+
+    def need_update(self, task: Union[Task, Path]) -&gt; bool:
+        &#34;&#34;&#34;
+        Whether a task need update based on the records status.
+        :param task:
+        :return:
+        &#34;&#34;&#34;
+        if isinstance(task, Path):
+            return not task.exists()
+        if task.name not in self._database:
+            return True
+        task_time = self._database.get(task.name)
+        return task.need_rerun(task_time)
+
+    def set_status_(self, task: Task):
+        &#34;&#34;&#34;
+        Set a task&#39;s status
+        :param task:
+        :return:
+        &#34;&#34;&#34;
+        tic = time.time()
+        self._database[task.name] = tic
+        self.save()
+        return self
+
+
+class Project(object):
+    &#34;&#34;&#34;
+    A structured container of tasks.
+    &#34;&#34;&#34;
+    SUCCESS = 0
+    FAIL = 1
+    RUNNING = 2
+    TODO = 3
+
+    def __init__(self, tasks: Iterable[Task] = None, history_path: Path = Path(&#39;.ts.history&#39;)):
+        &#34;&#34;&#34;
+        :param tasks: A iterable of tasks
+        :param history_path: if path is not valid
+        &#34;&#34;&#34;
+        self._history = ProjectHistory.load(history_path)
+        self._tasks = set() if tasks is None else set(tasks)  # type: Set[Task]
+        self._dependency_graph = None
+        self._build_dependency_graph()
+        self._task_finish_condition = Condition()
+
+        self._task_status_dict = {
+            task: self.TODO if self._history.need_update(task) else self.SUCCESS for task in self._tasks
+        }
+        self._tic_dict = {
+
+        }
+
+    def is_task_runnable(self, task: Task) -&gt; bool:
+        &#34;&#34;&#34;
+        A task is runnable is all its dependencies statuses are SUCCESS and its status is _TODO
+        :param task:
+        :return:
+        &#34;&#34;&#34;
+        if any([self._task_status_dict[_] == self.FAIL for _ in task.dependencies]):
+            self._task_status_dict[task] = self.FAIL
+            return False
+        ret = self._task_status_dict[task] == self.TODO and reduce(
+            lambda a, b: a and b,
+            [self._task_status_dict[_] == self.SUCCESS for _ in task.dependencies],
+            True
+        )
+        return ret
+
+    def find_runnable(self, todo_task_set: Set[Task]) -&gt; Union[Task, None]:
+        &#34;&#34;&#34;
+        find runnable task and remove started, failed, finished tasks
+        :param todo_task_set:
+        :return:
+        &#34;&#34;&#34;
+        for _task in todo_task_set.copy():
+            if self.is_task_runnable(_task):
+                logger.debug(f&#34;Task {_task} is runnable&#34;)
+                return _task
+            elif self.task_status[_task] in (self.RUNNING, self.SUCCESS, self.FAIL):
+                todo_task_set.discard(_task)
+        else:
+            return None
+
+    @property
+    def task_status(self) -&gt; Dict[Task, str]:
+        return self._task_status_dict
+
+    @property
+    def graph(self) -&gt; DAG:
+        return self._dependency_graph
+
+    def task_done(self, task: Task, success=True, echo_only=False):
+        tic = self._tic_dict[task]
+        toc = time.time()
+        logger.info(f&#34;{task} {&#39;finished&#39; if success else &#39;failed&#39;}, elapsed time: {toc - tic:.2f}s&#34;)
+        self._task_finish_condition.acquire()
+        self._task_finish_condition.notify()
+        self._task_finish_condition.release()
+        self._task_status_dict[task] = self.SUCCESS if success else self.FAIL
+        if success and not echo_only:
+            self._history.set_status_(task)
+
+    def task_started(self, task: Task):
+        logger.info(f&#34;{task} started&#34;)
+        self._tic_dict[task] = time.time()
+        self._task_status_dict[task] = self.RUNNING
+
+    @property
+    def tasks(self):
+        return self._tasks
+
+    def _build_dependency_graph(self):
+        nodes = self._tasks
+        edges = reduce(
+            lambda a, b: a | b,
+            [set((task, d_task) for d_task in task.dependencies) for task in self._tasks],
+            set()
+        )
+        self._dependency_graph = DAG(nodes, edges)
+        return self
+
+    def run_task(self, task: Task, n_jobs: int, load_average: float, echo_only: bool):
+        if self.task_status[task] == &#39;FINISHED&#39;:
+            logger.debug(f&#34;Task {task} finished already&#34;)
+            return
+        logger.info(f&#34;Run Task {task} with {n_jobs} jobs, {load_average} load average&#34;)
+        todo_task_set = self._dependency_graph.dependency_subgraph(task).nodes  # type: Set[Task]
+
+        def get_job(_task: Task):
+            if echo_only:
+                return lambda _=_task: logger.info((str(_)))
+            else:
+                return lambda _=_task: _()
+
+        if echo_only:
+            def callback(_future):
+                _task = future_to_task[_future]
+                self.task_done(_task, echo_only=True)
+        else:
+            def callback(_future):
+                _task = future_to_task[_future]
+                _status, _ret = _future.result()
+                self.task_done(_task, success=_status, echo_only=False)
+                if not _status:
+                    logger.error(f&#34;Error occurs in Task {_task!s}: {_ret}&#34;)
+
+        future_to_task = {}
+        with ThreadPoolExecutor(max_workers=n_jobs if n_jobs &gt; 0 else None) as pool:
+            while len(todo_task_set) &gt; 0:
+                task = self.find_runnable(todo_task_set)
+                if len(todo_task_set) &lt;= 0:
+                    break
+                elif task is None:
+                    self._task_finish_condition.acquire()
+                    self._task_finish_condition.wait()
+                    self._task_finish_condition.release()
+                    continue
+                while os.getloadavg()[0] &gt; load_average:
+                    time.sleep(0.5)
+                self.task_started(task)
+                future = pool.submit(get_job(task))
+                future_to_task[future] = task
+                future.add_done_callback(callback)
+
+    def clear_history(self):
+        self._history = ProjectHistory()
+        self._task_status_dict = {
+            task: self.TODO if self._history.need_update(task) else self.SUCCESS for task in self._tasks
+        }
+        return self</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="ts.project.Project"><code class="flex name class">
+<span>class <span class="ident">Project</span></span>
+<span>(</span><span>tasks: Iterable[<a title="ts.tasks.tasks.Task" href="tasks/tasks.html#ts.tasks.tasks.Task">Task</a>] = None, history_path: pathlib.Path = PosixPath('.ts.history'))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A structured container of tasks.</p>
+<p>:param tasks: A iterable of tasks
+:param history_path: if path is not valid</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Project(object):
+    &#34;&#34;&#34;
+    A structured container of tasks.
+    &#34;&#34;&#34;
+    SUCCESS = 0
+    FAIL = 1
+    RUNNING = 2
+    TODO = 3
+
+    def __init__(self, tasks: Iterable[Task] = None, history_path: Path = Path(&#39;.ts.history&#39;)):
+        &#34;&#34;&#34;
+        :param tasks: A iterable of tasks
+        :param history_path: if path is not valid
+        &#34;&#34;&#34;
+        self._history = ProjectHistory.load(history_path)
+        self._tasks = set() if tasks is None else set(tasks)  # type: Set[Task]
+        self._dependency_graph = None
+        self._build_dependency_graph()
+        self._task_finish_condition = Condition()
+
+        self._task_status_dict = {
+            task: self.TODO if self._history.need_update(task) else self.SUCCESS for task in self._tasks
+        }
+        self._tic_dict = {
+
+        }
+
+    def is_task_runnable(self, task: Task) -&gt; bool:
+        &#34;&#34;&#34;
+        A task is runnable is all its dependencies statuses are SUCCESS and its status is _TODO
+        :param task:
+        :return:
+        &#34;&#34;&#34;
+        if any([self._task_status_dict[_] == self.FAIL for _ in task.dependencies]):
+            self._task_status_dict[task] = self.FAIL
+            return False
+        ret = self._task_status_dict[task] == self.TODO and reduce(
+            lambda a, b: a and b,
+            [self._task_status_dict[_] == self.SUCCESS for _ in task.dependencies],
+            True
+        )
+        return ret
+
+    def find_runnable(self, todo_task_set: Set[Task]) -&gt; Union[Task, None]:
+        &#34;&#34;&#34;
+        find runnable task and remove started, failed, finished tasks
+        :param todo_task_set:
+        :return:
+        &#34;&#34;&#34;
+        for _task in todo_task_set.copy():
+            if self.is_task_runnable(_task):
+                logger.debug(f&#34;Task {_task} is runnable&#34;)
+                return _task
+            elif self.task_status[_task] in (self.RUNNING, self.SUCCESS, self.FAIL):
+                todo_task_set.discard(_task)
+        else:
+            return None
+
+    @property
+    def task_status(self) -&gt; Dict[Task, str]:
+        return self._task_status_dict
+
+    @property
+    def graph(self) -&gt; DAG:
+        return self._dependency_graph
+
+    def task_done(self, task: Task, success=True, echo_only=False):
+        tic = self._tic_dict[task]
+        toc = time.time()
+        logger.info(f&#34;{task} {&#39;finished&#39; if success else &#39;failed&#39;}, elapsed time: {toc - tic:.2f}s&#34;)
+        self._task_finish_condition.acquire()
+        self._task_finish_condition.notify()
+        self._task_finish_condition.release()
+        self._task_status_dict[task] = self.SUCCESS if success else self.FAIL
+        if success and not echo_only:
+            self._history.set_status_(task)
+
+    def task_started(self, task: Task):
+        logger.info(f&#34;{task} started&#34;)
+        self._tic_dict[task] = time.time()
+        self._task_status_dict[task] = self.RUNNING
+
+    @property
+    def tasks(self):
+        return self._tasks
+
+    def _build_dependency_graph(self):
+        nodes = self._tasks
+        edges = reduce(
+            lambda a, b: a | b,
+            [set((task, d_task) for d_task in task.dependencies) for task in self._tasks],
+            set()
+        )
+        self._dependency_graph = DAG(nodes, edges)
+        return self
+
+    def run_task(self, task: Task, n_jobs: int, load_average: float, echo_only: bool):
+        if self.task_status[task] == &#39;FINISHED&#39;:
+            logger.debug(f&#34;Task {task} finished already&#34;)
+            return
+        logger.info(f&#34;Run Task {task} with {n_jobs} jobs, {load_average} load average&#34;)
+        todo_task_set = self._dependency_graph.dependency_subgraph(task).nodes  # type: Set[Task]
+
+        def get_job(_task: Task):
+            if echo_only:
+                return lambda _=_task: logger.info((str(_)))
+            else:
+                return lambda _=_task: _()
+
+        if echo_only:
+            def callback(_future):
+                _task = future_to_task[_future]
+                self.task_done(_task, echo_only=True)
+        else:
+            def callback(_future):
+                _task = future_to_task[_future]
+                _status, _ret = _future.result()
+                self.task_done(_task, success=_status, echo_only=False)
+                if not _status:
+                    logger.error(f&#34;Error occurs in Task {_task!s}: {_ret}&#34;)
+
+        future_to_task = {}
+        with ThreadPoolExecutor(max_workers=n_jobs if n_jobs &gt; 0 else None) as pool:
+            while len(todo_task_set) &gt; 0:
+                task = self.find_runnable(todo_task_set)
+                if len(todo_task_set) &lt;= 0:
+                    break
+                elif task is None:
+                    self._task_finish_condition.acquire()
+                    self._task_finish_condition.wait()
+                    self._task_finish_condition.release()
+                    continue
+                while os.getloadavg()[0] &gt; load_average:
+                    time.sleep(0.5)
+                self.task_started(task)
+                future = pool.submit(get_job(task))
+                future_to_task[future] = task
+                future.add_done_callback(callback)
+
+    def clear_history(self):
+        self._history = ProjectHistory()
+        self._task_status_dict = {
+            task: self.TODO if self._history.need_update(task) else self.SUCCESS for task in self._tasks
+        }
+        return self</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="ts.project.Project.FAIL"><code class="name">var <span class="ident">FAIL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="ts.project.Project.RUNNING"><code class="name">var <span class="ident">RUNNING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="ts.project.Project.SUCCESS"><code class="name">var <span class="ident">SUCCESS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="ts.project.Project.TODO"><code class="name">var <span class="ident">TODO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="ts.project.Project.graph"><code class="name">var <span class="ident">graph</span> : <a title="ts.DAG.DAG" href="DAG.html#ts.DAG.DAG">DAG</a></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def graph(self) -&gt; DAG:
+    return self._dependency_graph</code></pre>
+</details>
+</dd>
+<dt id="ts.project.Project.task_status"><code class="name">var <span class="ident">task_status</span> : Dict[<a title="ts.tasks.tasks.Task" href="tasks/tasks.html#ts.tasks.tasks.Task">Task</a>, str]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def task_status(self) -&gt; Dict[Task, str]:
+    return self._task_status_dict</code></pre>
+</details>
+</dd>
+<dt id="ts.project.Project.tasks"><code class="name">var <span class="ident">tasks</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def tasks(self):
+    return self._tasks</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="ts.project.Project.clear_history"><code class="name flex">
+<span>def <span class="ident">clear_history</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear_history(self):
+    self._history = ProjectHistory()
+    self._task_status_dict = {
+        task: self.TODO if self._history.need_update(task) else self.SUCCESS for task in self._tasks
+    }
+    return self</code></pre>
+</details>
+</dd>
+<dt id="ts.project.Project.find_runnable"><code class="name flex">
+<span>def <span class="ident">find_runnable</span></span>(<span>self, todo_task_set: Set[<a title="ts.tasks.tasks.Task" href="tasks/tasks.html#ts.tasks.tasks.Task">Task</a>]) -> Union[<a title="ts.tasks.tasks.Task" href="tasks/tasks.html#ts.tasks.tasks.Task">Task</a>, NoneType]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>find runnable task and remove started, failed, finished tasks
+:param todo_task_set:
+:return:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_runnable(self, todo_task_set: Set[Task]) -&gt; Union[Task, None]:
+    &#34;&#34;&#34;
+    find runnable task and remove started, failed, finished tasks
+    :param todo_task_set:
+    :return:
+    &#34;&#34;&#34;
+    for _task in todo_task_set.copy():
+        if self.is_task_runnable(_task):
+            logger.debug(f&#34;Task {_task} is runnable&#34;)
+            return _task
+        elif self.task_status[_task] in (self.RUNNING, self.SUCCESS, self.FAIL):
+            todo_task_set.discard(_task)
+    else:
+        return None</code></pre>
+</details>
+</dd>
+<dt id="ts.project.Project.is_task_runnable"><code class="name flex">
+<span>def <span class="ident">is_task_runnable</span></span>(<span>self, task: <a title="ts.tasks.tasks.Task" href="tasks/tasks.html#ts.tasks.tasks.Task">Task</a>) -> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A task is runnable is all its dependencies statuses are SUCCESS and its status is _TODO
+:param task:
+:return:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_task_runnable(self, task: Task) -&gt; bool:
+    &#34;&#34;&#34;
+    A task is runnable is all its dependencies statuses are SUCCESS and its status is _TODO
+    :param task:
+    :return:
+    &#34;&#34;&#34;
+    if any([self._task_status_dict[_] == self.FAIL for _ in task.dependencies]):
+        self._task_status_dict[task] = self.FAIL
+        return False
+    ret = self._task_status_dict[task] == self.TODO and reduce(
+        lambda a, b: a and b,
+        [self._task_status_dict[_] == self.SUCCESS for _ in task.dependencies],
+        True
+    )
+    return ret</code></pre>
+</details>
+</dd>
+<dt id="ts.project.Project.run_task"><code class="name flex">
+<span>def <span class="ident">run_task</span></span>(<span>self, task: <a title="ts.tasks.tasks.Task" href="tasks/tasks.html#ts.tasks.tasks.Task">Task</a>, n_jobs: int, load_average: float, echo_only: bool)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_task(self, task: Task, n_jobs: int, load_average: float, echo_only: bool):
+    if self.task_status[task] == &#39;FINISHED&#39;:
+        logger.debug(f&#34;Task {task} finished already&#34;)
+        return
+    logger.info(f&#34;Run Task {task} with {n_jobs} jobs, {load_average} load average&#34;)
+    todo_task_set = self._dependency_graph.dependency_subgraph(task).nodes  # type: Set[Task]
+
+    def get_job(_task: Task):
+        if echo_only:
+            return lambda _=_task: logger.info((str(_)))
+        else:
+            return lambda _=_task: _()
+
+    if echo_only:
+        def callback(_future):
+            _task = future_to_task[_future]
+            self.task_done(_task, echo_only=True)
+    else:
+        def callback(_future):
+            _task = future_to_task[_future]
+            _status, _ret = _future.result()
+            self.task_done(_task, success=_status, echo_only=False)
+            if not _status:
+                logger.error(f&#34;Error occurs in Task {_task!s}: {_ret}&#34;)
+
+    future_to_task = {}
+    with ThreadPoolExecutor(max_workers=n_jobs if n_jobs &gt; 0 else None) as pool:
+        while len(todo_task_set) &gt; 0:
+            task = self.find_runnable(todo_task_set)
+            if len(todo_task_set) &lt;= 0:
+                break
+            elif task is None:
+                self._task_finish_condition.acquire()
+                self._task_finish_condition.wait()
+                self._task_finish_condition.release()
+                continue
+            while os.getloadavg()[0] &gt; load_average:
+                time.sleep(0.5)
+            self.task_started(task)
+            future = pool.submit(get_job(task))
+            future_to_task[future] = task
+            future.add_done_callback(callback)</code></pre>
+</details>
+</dd>
+<dt id="ts.project.Project.task_done"><code class="name flex">
+<span>def <span class="ident">task_done</span></span>(<span>self, task: <a title="ts.tasks.tasks.Task" href="tasks/tasks.html#ts.tasks.tasks.Task">Task</a>, success=True, echo_only=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def task_done(self, task: Task, success=True, echo_only=False):
+    tic = self._tic_dict[task]
+    toc = time.time()
+    logger.info(f&#34;{task} {&#39;finished&#39; if success else &#39;failed&#39;}, elapsed time: {toc - tic:.2f}s&#34;)
+    self._task_finish_condition.acquire()
+    self._task_finish_condition.notify()
+    self._task_finish_condition.release()
+    self._task_status_dict[task] = self.SUCCESS if success else self.FAIL
+    if success and not echo_only:
+        self._history.set_status_(task)</code></pre>
+</details>
+</dd>
+<dt id="ts.project.Project.task_started"><code class="name flex">
+<span>def <span class="ident">task_started</span></span>(<span>self, task: <a title="ts.tasks.tasks.Task" href="tasks/tasks.html#ts.tasks.tasks.Task">Task</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def task_started(self, task: Task):
+    logger.info(f&#34;{task} started&#34;)
+    self._tic_dict[task] = time.time()
+    self._task_status_dict[task] = self.RUNNING</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="ts.project.ProjectHistory"><code class="flex name class">
+<span>class <span class="ident">ProjectHistory</span></span>
+<span>(</span><span>path=PosixPath('.ts.history'))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save a Project running status</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ProjectHistory(object):
+    &#34;&#34;&#34;
+    Save a Project running status
+    &#34;&#34;&#34;
+
+    def __init__(self, path=Path(&#39;.ts.history&#39;)):
+        self._database = {}  # type: Dict[str, float]
+        self._path = path
+
+    @staticmethod
+    def load(path: Path) -&gt; &#39;ProjectHistory&#39;:
+        &#34;&#34;&#34;
+        :param path: If path is not valid, a new ProjectHistory will be created
+        :return:
+        &#34;&#34;&#34;
+        try:
+            with open(str(path.resolve()), &#39;r&#39;) as f:
+                database = json.load(f)
+        except FileNotFoundError:
+            database = {}
+        ret = ProjectHistory(path=path)
+        ret._database = database
+        return ret
+
+    def save(self):
+        &#34;&#34;&#34;
+        Save ProjectHistory to the given path
+        :return:
+        &#34;&#34;&#34;
+        with open(str(self._path.resolve()), &#39;w+&#39;) as f:
+            json.dump(self._database, f, indent=4)
+        return self
+
+    def need_update(self, task: Union[Task, Path]) -&gt; bool:
+        &#34;&#34;&#34;
+        Whether a task need update based on the records status.
+        :param task:
+        :return:
+        &#34;&#34;&#34;
+        if isinstance(task, Path):
+            return not task.exists()
+        if task.name not in self._database:
+            return True
+        task_time = self._database.get(task.name)
+        return task.need_rerun(task_time)
+
+    def set_status_(self, task: Task):
+        &#34;&#34;&#34;
+        Set a task&#39;s status
+        :param task:
+        :return:
+        &#34;&#34;&#34;
+        tic = time.time()
+        self._database[task.name] = tic
+        self.save()
+        return self</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="ts.project.ProjectHistory.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>path: pathlib.Path) -> <a title="ts.project.ProjectHistory" href="#ts.project.ProjectHistory">ProjectHistory</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>:param path: If path is not valid, a new ProjectHistory will be created
+:return:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def load(path: Path) -&gt; &#39;ProjectHistory&#39;:
+    &#34;&#34;&#34;
+    :param path: If path is not valid, a new ProjectHistory will be created
+    :return:
+    &#34;&#34;&#34;
+    try:
+        with open(str(path.resolve()), &#39;r&#39;) as f:
+            database = json.load(f)
+    except FileNotFoundError:
+        database = {}
+    ret = ProjectHistory(path=path)
+    ret._database = database
+    return ret</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="ts.project.ProjectHistory.need_update"><code class="name flex">
+<span>def <span class="ident">need_update</span></span>(<span>self, task: Union[ts.tasks.tasks.Task, pathlib.Path]) -> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Whether a task need update based on the records status.
+:param task:
+:return:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def need_update(self, task: Union[Task, Path]) -&gt; bool:
+    &#34;&#34;&#34;
+    Whether a task need update based on the records status.
+    :param task:
+    :return:
+    &#34;&#34;&#34;
+    if isinstance(task, Path):
+        return not task.exists()
+    if task.name not in self._database:
+        return True
+    task_time = self._database.get(task.name)
+    return task.need_rerun(task_time)</code></pre>
+</details>
+</dd>
+<dt id="ts.project.ProjectHistory.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save ProjectHistory to the given path
+:return:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save(self):
+    &#34;&#34;&#34;
+    Save ProjectHistory to the given path
+    :return:
+    &#34;&#34;&#34;
+    with open(str(self._path.resolve()), &#39;w+&#39;) as f:
+        json.dump(self._database, f, indent=4)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="ts.project.ProjectHistory.set_status_"><code class="name flex">
+<span>def <span class="ident">set_status_</span></span>(<span>self, task: <a title="ts.tasks.tasks.Task" href="tasks/tasks.html#ts.tasks.tasks.Task">Task</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set a task's status
+:param task:
+:return:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_status_(self, task: Task):
+    &#34;&#34;&#34;
+    Set a task&#39;s status
+    :param task:
+    :return:
+    &#34;&#34;&#34;
+    tic = time.time()
+    self._database[task.name] = tic
+    self.save()
+    return self</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="ts" href="index.html">ts</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="ts.project.Project" href="#ts.project.Project">Project</a></code></h4>
+<ul class="two-column">
+<li><code><a title="ts.project.Project.FAIL" href="#ts.project.Project.FAIL">FAIL</a></code></li>
+<li><code><a title="ts.project.Project.RUNNING" href="#ts.project.Project.RUNNING">RUNNING</a></code></li>
+<li><code><a title="ts.project.Project.SUCCESS" href="#ts.project.Project.SUCCESS">SUCCESS</a></code></li>
+<li><code><a title="ts.project.Project.TODO" href="#ts.project.Project.TODO">TODO</a></code></li>
+<li><code><a title="ts.project.Project.clear_history" href="#ts.project.Project.clear_history">clear_history</a></code></li>
+<li><code><a title="ts.project.Project.find_runnable" href="#ts.project.Project.find_runnable">find_runnable</a></code></li>
+<li><code><a title="ts.project.Project.graph" href="#ts.project.Project.graph">graph</a></code></li>
+<li><code><a title="ts.project.Project.is_task_runnable" href="#ts.project.Project.is_task_runnable">is_task_runnable</a></code></li>
+<li><code><a title="ts.project.Project.run_task" href="#ts.project.Project.run_task">run_task</a></code></li>
+<li><code><a title="ts.project.Project.task_done" href="#ts.project.Project.task_done">task_done</a></code></li>
+<li><code><a title="ts.project.Project.task_started" href="#ts.project.Project.task_started">task_started</a></code></li>
+<li><code><a title="ts.project.Project.task_status" href="#ts.project.Project.task_status">task_status</a></code></li>
+<li><code><a title="ts.project.Project.tasks" href="#ts.project.Project.tasks">tasks</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="ts.project.ProjectHistory" href="#ts.project.ProjectHistory">ProjectHistory</a></code></h4>
+<ul class="">
+<li><code><a title="ts.project.ProjectHistory.load" href="#ts.project.ProjectHistory.load">load</a></code></li>
+<li><code><a title="ts.project.ProjectHistory.need_update" href="#ts.project.ProjectHistory.need_update">need_update</a></code></li>
+<li><code><a title="ts.project.ProjectHistory.save" href="#ts.project.ProjectHistory.save">save</a></code></li>
+<li><code><a title="ts.project.ProjectHistory.set_status_" href="#ts.project.ProjectHistory.set_status_">set_status_</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
