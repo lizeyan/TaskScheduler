@@ -19,3 +19,4 @@ jobs:
           BRANCH: gh-pages # The branch the action should deploy to.
           FOLDER: docs
           BUILD_SCRIPT: pip install -r requirements.txt && pip install pdoc3 && pdoc3 ts --html --force -o docs
+          CNAME: ts.lizeyan.me

@@ -1,4 +1,6 @@
 # TaskScheduler (TS)
+[Documentation](https://ts.lizeyan.me/ts/index.html)
+
 |Branch|Build|Coverage|
 |---   |---  |---     |
 |master|![Python package](https://github.com/lizeyan/TaskScheduler/workflows/Python%20package/badge.svg?branch=master)|[![Coverage Status](https://coveralls.io/repos/github/lizeyan/TaskScheduler/badge.svg?branch=master&t=lYjJ0E)](https://coveralls.io/github/lizeyan/TaskScheduler?branch=master&service=github)|
