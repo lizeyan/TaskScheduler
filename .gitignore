@@ -133,3 +133,5 @@ output/
 .ts.history
 
 .DS_Store
+html/
+docs/
