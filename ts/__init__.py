@@ -14,5 +14,5 @@ __all__ = [
     "cli"
 ]
 
-__version__ = f'0.0.1.1'
+__version__ = f'0.0.1.2'
 __version_minor__ = f'{getoutput("git rev-parse HEAD")[:10]}@{getoutput("git rev-parse --abbrev-ref HEAD")}'

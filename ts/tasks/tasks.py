@@ -79,7 +79,7 @@ class ShellTask(Task):
             self, command: str, name: str = None,
             dependencies: Iterable[Task] = None,
     ):
-        self.__str = f"{name}: \"{command}\"" if name is not None else f"\"{command}\""
+        self.__str = f"{name}" if name is not None else f"\"{command}\""
         if name is None:
             name = command
         super().__init__(
@@ -139,7 +139,7 @@ class GenerateFileTask(Task):
         :param base: based on this task to generate the file
         """
         super().__init__(
-            name=f"{str(path.resolve())}<-{base.name}",
+            name=f"{str(path.relative_to('.'))}<-{base.name}",
             dependencies=base.dependencies
         )
         self.path = path
@@ -156,7 +156,7 @@ class ReadFileTask(Task):
 
     def __init__(self, path: Path, dependencies: Iterable[Task] = None):
         super().__init__(
-            name=f"{str(path.resolve())}",
+            name=f"{str(path.relative_to('.'))}",
             dependencies=dependencies
         )
         self.path = path

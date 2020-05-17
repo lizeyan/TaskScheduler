@@ -146,7 +146,7 @@ def __parse_depend(
         is_list = False
     for depend in depends:
         if isinstance(depend, Path):
-            depend_files.append(depend.resolve())
+            depend_files.append(depend.relative_to('.'))
         elif isinstance(depend, Task):
             depend_tasks.append(depend)
         elif isinstance(depend, str):
@@ -154,7 +154,7 @@ def __parse_depend(
             if _task_resolved is not None:
                 depend_tasks.append(_task_resolved)
             else:
-                depend_files.append(Path(depend).resolve())
+                depend_files.append(Path(depend).relative_to('.'))
         else:
             raise RuntimeError(f"wired depend type: {depend} {type(depend)}")
 
@@ -173,9 +173,9 @@ def __parse_targets(
     ret = []
     for target in targets:
         if isinstance(target, Path):
-            ret.append(target.resolve())
+            ret.append(target.relative_to('.'))
         elif isinstance(target, str):
-            ret.append(Path(target).resolve())
+            ret.append(Path(target).relative_to('.'))
         else:
             raise RuntimeError(f"wired target type: {target} {type(target)}")
     return ret, is_list

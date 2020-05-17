@@ -39,80 +39,87 @@ train_file_names = list(map(lambda _: _.name, train_files))
 test_file_names = list(map(lambda _: _.name, test_files))
 
 lclz_result = task(
-    "python experiment_lib.py --mode collect --step lclz -o {{ __t }} -i {{ __d|join(' -i ') }}",
+    "python exp.py -m collect -s lclz -o {{ __t }} -i {{ __d|join(' -i ') }}",
     depend=str_product(
         output_path / "{{ f }}.{{ alg }}.lclz",
         f=test_file_names,
         alg=['C', 'D', 'E']
     ),
     target=output_path / 'f.lclz',
-    name="lclz-result"
+    name="collect localization result"
 )
 
 e_results = task_product(
-    "python experiment_lib.py --mode run_model --step lclz --algorithm e "
+    "python exp.py -m run_model -a e "
     "-i {{ __d }} -o {{ __t }}",
     depend=test_dir / "{{ f }}",
     target=output_path / "{{ f }}.E.lclz",
-    f=test_file_names
+    f=test_file_names,
+    name="E-result of {{ f }}"
 )
 
 d_results = task_product(
-    "python experiment_lib.py --mode run_model --step lclz --algorithm d "
-    "-i {{ __d[0] }} -o {{ __t }} --model-file {{ __d[1] }}",
+    "python exp.py -m run_model -a d "
+    "-i {{ __d[0] }} -o {{ __t }} -f {{ __d[1] }}",
     depend=[output_path / "{{ f }}.B", output_path / "D.model"],
     target=output_path / "{{ f }}.D.lclz",
-    f=test_file_names
+    f=test_file_names,
+    name="D-result of {{ f }}"
 )
 
 c_results = task_product(
-    "python experiment_lib.py --mode run_model --step lclz --algorithm c "
-    "-i {{ __d[0] }} -o {{ __t }} --model-file {{ __d[1] }}",
+    "python exp.py -m run_model -a c "
+    "-i {{ __d[0] }} -o {{ __t }} -f {{ __d[1] }}",
     depend=[output_path / "{{ f }}.A", output_path / "f.ad"],
     target=output_path / "{{ f }}.C.lclz",
-    f=test_file_names
+    f=test_file_names,
+    name="C-result of {{ f }}"
 )
 
 ad_result = task(
-    "python experiment_lib.py --mode collect --step ad -o {{ __t }} -i {{ __d|join(' -i ') }}",
+    "python exp.py -m collect --step ad -o {{ __t }} -i {{ __d|join(' -i ') }}",
     depend=str_product(
         output_path / "{{ f }}.{{ alg }}.ad",
         f=test_file_names,
         alg=['A', 'B']
     ),
     target=output_path / 'f.ad',
-    name="ad-result"
+    name="collect anomaly detection result"
 )
 
 a_results = task_product(
-    "python experiment_lib.py --mode run_model --step ad --algorithm a "
+    "python exp.py -m run_model -a a "
     "-i {{ __d }} -o {{ __t }}",
     depend=output_path / "{{ f }}.A",
     target=output_path / "{{ f }}.A.ad",
-    f=test_file_names
+    f=test_file_names,
+    name="A-result of {{ f }}"
 )
 
 b_results = task_product(
-    "python experiment_lib.py --mode run_model --step ad --algorithm b "
-    "-i {{ __d[0] }} -o {{ __t }} --model-file {{ __d[1] }}",
+    "python exp.py -m run_model -a b "
+    "-i {{ __d[0] }} -o {{ __t }} -f {{ __d[1] }}",
     depend=[output_path / "{{ f }}.B", output_path / "B.model"],
     target=output_path / "{{ f }}.B.ad",
-    f=test_file_names
+    f=test_file_names,
+    name="B-result of {{ f }}"
 )
 
 build_model = task_product(
-    "python experiment_lib.py --mode build_model --algorithm {{ alg }} "
+    "python exp.py -m build_model -a {{ alg }} "
     "-i {{ __d|join(' -i ') }} -o {{ __t }}",
     depend=str_product(output_path / "{{ f }}.B", f=train_file_names),
     target=output_path / "{{ alg }}.model",
-    alg=['B', 'D']
+    alg=['B', 'D'],
+    name="build model {{ alg }}"
 )
 
 encode_files = task_product(
-    "python experiment_lib.py --mode encode --algorithm {{ alg }} "
+    "python exp.py -m encode -a {{ alg }} "
     "-i {{ __d }} -o {{ __t }}",
     depend="{{ path }}",
     target=output_path / "{{ path.name }}.{{ alg }}",
     path=train_files + test_files,
-    alg=['B', 'A']
+    alg=['B', 'A'],
+    name="encode {{ path.name }} of {{ alg }}"
 )
