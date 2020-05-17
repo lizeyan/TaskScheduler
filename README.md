@@ -1,5 +1,5 @@
 # TaskScheduler (TS)
-[Documentation](https://ts.lizeyan.me/ts/index.html)
+[Documentation](https://ts.lizeyan.me/)
 
 |Branch|Build|Coverage|
 |---   |---  |---     |
