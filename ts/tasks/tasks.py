@@ -6,6 +6,10 @@ from typing import Iterable, Callable, Tuple, Any, Set
 class Task(object):
     __name_to_instance = {}
 
+    @staticmethod
+    def clear():
+        Task.__name_to_instance = {}
+
     def __new__(cls, *args, **kwargs):
         instance = super().__new__(cls)
         instance.__init__(*args, **kwargs)
@@ -79,7 +83,7 @@ class ShellTask(Task):
             self, command: str, name: str = None,
             dependencies: Iterable[Task] = None,
     ):
-        self.__str = f"{name}: \"{command}\"" if name is not None else f"\"{command}\""
+        self.__str = f"{name}" if name is not None else f"\"{command}\""
         if name is None:
             name = command
         super().__init__(
@@ -96,6 +100,9 @@ class ShellTask(Task):
 class CallableTask(Task):
     def __str__(self):
         return self.name
+
+    def need_rerun(self, time: float = None) -> bool:
+        return True
 
     def __init__(
             self, function: Callable, name: str = None,
@@ -115,16 +122,17 @@ class CallableTask(Task):
 
     def __call__(self, *args, **kwargs):
         try:
-            ret = self.__function(*args, **kwargs)
+            self._result = self.__function(*[_.result for _ in self.dependencies], *args, **kwargs)
         except Exception as e:
             return False, e
         else:
-            return True, ret
+            return True, self.result
 
 
 class GenerateFileTask(Task):
     def __call__(self, *args, **kwargs) -> Tuple[bool, Any]:
-        return self.base()
+        self._result = self.base()
+        return self._result
 
     def __str__(self):
         return f"Generate {self.path}<-{self.base}"
@@ -135,7 +143,7 @@ class GenerateFileTask(Task):
         :param base: based on this task to generate the file
         """
         super().__init__(
-            name=f"{str(path.resolve())}<-{base.name}",
+            name=f"{str(path.relative_to('.'))}<-{base.name}",
             dependencies=base.dependencies
         )
         self.path = path
@@ -147,11 +155,12 @@ class GenerateFileTask(Task):
 
 class ReadFileTask(Task):
     def __call__(self, *args, **kwargs) -> Tuple[bool, Any]:
-        return self.path.exists(), None
+        self._result = self.path.exists()
+        return self._result, None
 
     def __init__(self, path: Path, dependencies: Iterable[Task] = None):
         super().__init__(
-            name=f"{str(path.resolve())}",
+            name=f"{str(path.relative_to('.'))}",
             dependencies=dependencies
         )
         self.path = path

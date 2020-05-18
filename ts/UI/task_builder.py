@@ -1,13 +1,26 @@
 from collections import defaultdict, OrderedDict
-from functools import reduce
+from functools import reduce, partial
 from itertools import product
 from pathlib import Path
-from typing import Union, Callable, Iterable, Tuple, List, Dict
+from typing import Union, Callable, Iterable, Tuple, List, Dict, Set
 
 from jinja2 import Template
 from loguru import logger
 
 from ..tasks import Task, ShellTask, CallableTask, ReadFileTask, GenerateFileTask
+
+
+def clear():
+    global _task_target_file_dict
+    global _task_builder_global_tasks
+    global _task_dependency_file_dict
+    global _drop_if_not_used
+    _task_builder_global_tasks = set()
+    _task_target_file_dict = {}
+    _task_dependency_file_dict = defaultdict(list)
+    _drop_if_not_used = set()
+    Task.clear()
+
 
 _task_builder_global_tasks = set()  # type: Set[Task]
 _task_target_file_dict = {}  # type: Dict[Path, Task]
@@ -19,6 +32,12 @@ reserved_keywords = [
     '__dependency__', '__d',
     '__target__', '__t',
 ]
+
+
+def __if_func_accept_kwargs(func):
+    import inspect
+    x = inspect.signature(func)
+    return any(_.kind == inspect.Parameter.VAR_KEYWORD for _ in x.parameters.values())
 
 
 def _render(
@@ -89,7 +108,7 @@ def task(
         )
     elif callable(runner):
         ret = CallableTask(
-            function=runner,
+            function=runner if not __if_func_accept_kwargs(runner) else partial(runner, **template_kwargs),
             name=_render(name, template_kwargs),
             dependencies=depend_tasks
         )
@@ -140,7 +159,7 @@ def __parse_depend(
         is_list = False
     for depend in depends:
         if isinstance(depend, Path):
-            depend_files.append(depend.resolve())
+            depend_files.append(depend.relative_to('.'))
         elif isinstance(depend, Task):
             depend_tasks.append(depend)
         elif isinstance(depend, str):
@@ -148,7 +167,7 @@ def __parse_depend(
             if _task_resolved is not None:
                 depend_tasks.append(_task_resolved)
             else:
-                depend_files.append(Path(depend).resolve())
+                depend_files.append(Path(depend).relative_to('.'))
         else:
             raise RuntimeError(f"wired depend type: {depend} {type(depend)}")
 
@@ -167,9 +186,9 @@ def __parse_targets(
     ret = []
     for target in targets:
         if isinstance(target, Path):
-            ret.append(target.resolve())
+            ret.append(target.relative_to('.'))
         elif isinstance(target, str):
-            ret.append(Path(target).resolve())
+            ret.append(Path(target).relative_to('.'))
         else:
             raise RuntimeError(f"wired target type: {target} {type(target)}")
     return ret, is_list

@@ -5,7 +5,8 @@ from pathlib import Path
 import click
 from loguru import logger
 
-from .task_builder import _all_built_tasks
+from .task_builder import _all_built_tasks, clear
+from ..__init__ import __version__, __version_minor__
 from ..project import Project
 from ..tasks import Task
 
@@ -25,14 +26,22 @@ from ..tasks import Task
     help='working directory'
 )
 @click.option("--debug", "-d", is_flag=True, default=False)
-# @click.argument('default_command_args', nargs=-1, type=click.UNPROCESSED)
+@click.option("--version", "-V", is_flag=True, default=False)
 @click.pass_context
-def cli(ctx, ts_file, debug, working_directory):
+def cli(ctx, ts_file, debug, working_directory, version):
+    if version:
+        print(__version__, __version_minor__)
+        return
     os.chdir(working_directory)
     logger.remove()
-    logger.add(sys.stdout, level="INFO" if not debug else "DEBUG")
+    logger.add(
+        sys.stdout,
+        level="INFO" if not debug else "DEBUG",
+        format="[<green>{time}</green> <yellow>{level:>6}</yellow>] <white>{message}</white>"
+    )
     ts_file = Path(ts_file)
     with open(str(ts_file.resolve()), 'r') as f:
+        clear()
         exec(f.read())
     ctx.ensure_object(dict)
     ctx.obj['project'] = Project(
