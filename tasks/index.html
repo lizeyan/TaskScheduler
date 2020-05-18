@@ -59,6 +59,9 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
     def __str__(self):
         return self.name
 
+    def need_rerun(self, time: float = None) -&gt; bool:
+        return True
+
     def __init__(
             self, function: Callable, name: str = None,
             dependencies: Iterable[Task] = None,
@@ -77,16 +80,32 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
 
     def __call__(self, *args, **kwargs):
         try:
-            ret = self.__function(*args, **kwargs)
+            self._result = self.__function(*[_.result for _ in self.dependencies], *args, **kwargs)
         except Exception as e:
             return False, e
         else:
-            return True, ret</code></pre>
+            return True, self.result</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="ts.tasks.tasks.Task" href="tasks.html#ts.tasks.tasks.Task">Task</a></li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="ts.tasks.CallableTask.need_rerun"><code class="name flex">
+<span>def <span class="ident">need_rerun</span></span>(<span>self, time: float = None) -> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def need_rerun(self, time: float = None) -&gt; bool:
+    return True</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 <dt id="ts.tasks.GenerateFileTask"><code class="flex name class">
 <span>class <span class="ident">GenerateFileTask</span></span>
@@ -101,7 +120,8 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
 </summary>
 <pre><code class="python">class GenerateFileTask(Task):
     def __call__(self, *args, **kwargs) -&gt; Tuple[bool, Any]:
-        return self.base()
+        self._result = self.base()
+        return self._result
 
     def __str__(self):
         return f&#34;Generate {self.path}&lt;-{self.base}&#34;
@@ -112,7 +132,7 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
         :param base: based on this task to generate the file
         &#34;&#34;&#34;
         super().__init__(
-            name=f&#34;{str(path.resolve())}&lt;-{base.name}&#34;,
+            name=f&#34;{str(path.relative_to(&#39;.&#39;))}&lt;-{base.name}&#34;,
             dependencies=base.dependencies
         )
         self.path = path
@@ -154,11 +174,12 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
 </summary>
 <pre><code class="python">class ReadFileTask(Task):
     def __call__(self, *args, **kwargs) -&gt; Tuple[bool, Any]:
-        return self.path.exists(), None
+        self._result = self.path.exists()
+        return self._result, None
 
     def __init__(self, path: Path, dependencies: Iterable[Task] = None):
         super().__init__(
-            name=f&#34;{str(path.resolve())}&#34;,
+            name=f&#34;{str(path.relative_to(&#39;.&#39;))}&#34;,
             dependencies=dependencies
         )
         self.path = path
@@ -205,7 +226,7 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
             self, command: str, name: str = None,
             dependencies: Iterable[Task] = None,
     ):
-        self.__str = f&#34;{name}: \&#34;{command}\&#34;&#34; if name is not None else f&#34;\&#34;{command}\&#34;&#34;
+        self.__str = f&#34;{name}&#34; if name is not None else f&#34;\&#34;{command}\&#34;&#34;
         if name is None:
             name = command
         super().__init__(
@@ -235,6 +256,10 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
 </summary>
 <pre><code class="python">class Task(object):
     __name_to_instance = {}
+
+    @staticmethod
+    def clear():
+        Task.__name_to_instance = {}
 
     def __new__(cls, *args, **kwargs):
         instance = super().__new__(cls)
@@ -309,6 +334,20 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
 </ul>
 <h3>Static methods</h3>
 <dl>
+<dt id="ts.tasks.Task.clear"><code class="name flex">
+<span>def <span class="ident">clear</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def clear():
+    Task.__name_to_instance = {}</code></pre>
+</details>
+</dd>
 <dt id="ts.tasks.Task.task"><code class="name flex">
 <span>def <span class="ident">task</span></span>(<span>name: str)</span>
 </code></dt>
@@ -420,6 +459,9 @@ def result(self) -&gt; Any:
 <ul>
 <li>
 <h4><code><a title="ts.tasks.CallableTask" href="#ts.tasks.CallableTask">CallableTask</a></code></h4>
+<ul class="">
+<li><code><a title="ts.tasks.CallableTask.need_rerun" href="#ts.tasks.CallableTask.need_rerun">need_rerun</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="ts.tasks.GenerateFileTask" href="#ts.tasks.GenerateFileTask">GenerateFileTask</a></code></h4>
@@ -440,6 +482,7 @@ def result(self) -&gt; Any:
 <h4><code><a title="ts.tasks.Task" href="#ts.tasks.Task">Task</a></code></h4>
 <ul class="two-column">
 <li><code><a title="ts.tasks.Task.add_dependency" href="#ts.tasks.Task.add_dependency">add_dependency</a></code></li>
+<li><code><a title="ts.tasks.Task.clear" href="#ts.tasks.Task.clear">clear</a></code></li>
 <li><code><a title="ts.tasks.Task.dependencies" href="#ts.tasks.Task.dependencies">dependencies</a></code></li>
 <li><code><a title="ts.tasks.Task.name" href="#ts.tasks.Task.name">name</a></code></li>
 <li><code><a title="ts.tasks.Task.need_rerun" href="#ts.tasks.Task.need_rerun">need_rerun</a></code></li>

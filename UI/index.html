@@ -89,7 +89,7 @@ __all__ = [&#34;cli&#34;, &#34;task&#34;, &#34;task_product&#34;]</code></pre>
         )
     elif callable(runner):
         ret = CallableTask(
-            function=runner,
+            function=runner if not __if_func_accept_kwargs(runner) else partial(runner, **template_kwargs),
             name=_render(name, template_kwargs),
             dependencies=depend_tasks
         )

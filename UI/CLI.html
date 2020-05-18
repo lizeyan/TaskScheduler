@@ -31,7 +31,8 @@ from pathlib import Path
 import click
 from loguru import logger
 
-from .task_builder import _all_built_tasks
+from .task_builder import _all_built_tasks, clear
+from ..__init__ import __version__, __version_minor__
 from ..project import Project
 from ..tasks import Task
 
@@ -51,14 +52,22 @@ from ..tasks import Task
     help=&#39;working directory&#39;
 )
 @click.option(&#34;--debug&#34;, &#34;-d&#34;, is_flag=True, default=False)
-# @click.argument(&#39;default_command_args&#39;, nargs=-1, type=click.UNPROCESSED)
+@click.option(&#34;--version&#34;, &#34;-V&#34;, is_flag=True, default=False)
 @click.pass_context
-def cli(ctx, ts_file, debug, working_directory):
+def cli(ctx, ts_file, debug, working_directory, version):
+    if version:
+        print(__version__, __version_minor__)
+        return
     os.chdir(working_directory)
     logger.remove()
-    logger.add(sys.stdout, level=&#34;INFO&#34; if not debug else &#34;DEBUG&#34;)
+    logger.add(
+        sys.stdout,
+        level=&#34;INFO&#34; if not debug else &#34;DEBUG&#34;,
+        format=&#34;[&lt;green&gt;{time}&lt;/green&gt; &lt;yellow&gt;{level:&gt;6}&lt;/yellow&gt;] &lt;white&gt;{message}&lt;/white&gt;&#34;
+    )
     ts_file = Path(ts_file)
     with open(str(ts_file.resolve()), &#39;r&#39;) as f:
+        clear()
         exec(f.read())
     ctx.ensure_object(dict)
     ctx.obj[&#39;project&#39;] = Project(
