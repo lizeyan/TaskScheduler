@@ -46,7 +46,7 @@ def cli(ctx, ts_file, debug, working_directory, version):
     ctx.ensure_object(dict)
     ctx.obj['project'] = Project(
         tasks=_all_built_tasks(),
-        history_path=ts_file.parent / ".ts.history"
+        history_path=ts_file.parent / f".{ts_file.name}.ts.history"
     )
     ctx.obj['debug'] = debug
     if ctx.invoked_subcommand is None:

@@ -168,7 +168,7 @@ class Project(object):
         return self
 
     def run_task(self, task: Task, n_jobs: int, load_average: float, echo_only: bool):
-        if self.task_status[task] == 'FINISHED':
+        if self.task_status.get(task, None) == 'FINISHED':
             logger.debug(f"Task {task} finished already")
             return
         logger.info(f"Run Task {task} with {n_jobs} jobs, {load_average} load average")

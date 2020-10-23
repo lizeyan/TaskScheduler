@@ -220,6 +220,7 @@ def _remove_unused_tasks(_tasks):
         [_.dependencies for _ in _tasks],
         set()
     )
+    logger.debug(f"drop if not used: {_drop_if_not_used}")
     return _tasks - (_drop_if_not_used - used)
 
 
