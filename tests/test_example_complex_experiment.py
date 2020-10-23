@@ -42,7 +42,7 @@ def test_cli_run():
     assert len(list(output.glob('*'))) >= 0
     assert (output / 'f.lclz').exists()
     ret_time = os.path.getmtime(str(output / 'f.lclz'))
-    assert Path('.ts.history').exists()
+    assert Path('.task.py.ts.history').exists()
 
     cli(args=['run'], standalone_mode=False)
     assert len(list(output.glob('*'))) >= 0
