@@ -89,6 +89,11 @@ class Project(object):
         self._tasks = set() if tasks is None else set(tasks)  # type: Set[Task]
         self._dependency_graph = None
         self._build_dependency_graph()
+
+        root = Task("root", dependencies=list(filter(lambda x: len(self.graph.in_edges(x)) == 0, self.graph.nodes)))
+        self._tasks.add(root)
+        self._build_dependency_graph()
+
         self._task_finish_condition = Condition()
 
         self._task_status_dict = {
