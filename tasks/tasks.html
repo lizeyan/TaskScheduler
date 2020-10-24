@@ -105,7 +105,7 @@ class Task(object):
 
 class EmptyTask(Task):
     def __call__(self, *args, **kwargs) -&gt; Tuple[bool, Any]:
-        pass
+        return True, None
 
 
 class ShellTask(Task):
@@ -285,7 +285,7 @@ class ReadFileTask(Task):
 </summary>
 <pre><code class="python">class EmptyTask(Task):
     def __call__(self, *args, **kwargs) -&gt; Tuple[bool, Any]:
-        pass</code></pre>
+        return True, None</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
