@@ -75,6 +75,11 @@ class Task(object):
         return id(self)
 
 
+class EmptyTask(Task):
+    def __call__(self, *args, **kwargs) -> Tuple[bool, Any]:
+        pass
+
+
 class ShellTask(Task):
     def __str__(self):
         return self.__str

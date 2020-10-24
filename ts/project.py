@@ -10,7 +10,7 @@ from typing import Iterable, Union, Dict, Set
 from loguru import logger
 
 from .DAG import DAG
-from .tasks import Task
+from .tasks import Task, EmptyTask
 
 
 class ProjectHistory(object):
@@ -90,7 +90,7 @@ class Project(object):
         self._dependency_graph = None
         self._build_dependency_graph()
 
-        root = Task("root", dependencies=list(filter(lambda x: len(self.graph.in_edges(x)) == 0, self.graph.nodes)))
+        root = EmptyTask("root", dependencies=list(filter(lambda x: len(self.graph.in_edges(x)) == 0, self.graph.nodes)))
         self._tasks.add(root)
         self._build_dependency_graph()
 
