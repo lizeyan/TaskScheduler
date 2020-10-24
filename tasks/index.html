@@ -237,7 +237,12 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
         self.__command = command
 
     def __call__(self, *args, **kwargs):
-        ret = os.system(self.__command)
+        job = Popen(self.__command, shell=True)
+        try:
+            ret = job.wait()
+        except KeyboardInterrupt:
+            job.terminate()
+            return False, None
         self._result = ret
         return ret == 0, ret</code></pre>
 </details>

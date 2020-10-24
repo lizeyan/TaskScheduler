@@ -182,7 +182,7 @@ class Project(object):
             self._history.set_status_(task)
 
     def task_started(self, task: Task):
-        logger.info(f&#34;{task} started&#34;)
+        logger.info(f&#34;{task} appended to executor&#34;)
         self._tic_dict[task] = time.time()
         self._task_status_dict[task] = self.RUNNING
 
@@ -355,7 +355,7 @@ class Project(object):
             self._history.set_status_(task)
 
     def task_started(self, task: Task):
-        logger.info(f&#34;{task} started&#34;)
+        logger.info(f&#34;{task} appended to executor&#34;)
         self._tic_dict[task] = time.time()
         self._task_status_dict[task] = self.RUNNING
 
@@ -639,7 +639,7 @@ def tasks(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def task_started(self, task: Task):
-    logger.info(f&#34;{task} started&#34;)
+    logger.info(f&#34;{task} appended to executor&#34;)
     self._tic_dict[task] = time.time()
     self._task_status_dict[task] = self.RUNNING</code></pre>
 </details>
