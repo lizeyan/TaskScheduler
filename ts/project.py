@@ -154,7 +154,7 @@ class Project(object):
             self._history.set_status_(task)
 
     def task_started(self, task: Task):
-        logger.info(f"{task} started")
+        logger.info(f"{task} appended to executor")
         self._tic_dict[task] = time.time()
         self._task_status_dict[task] = self.RUNNING
 

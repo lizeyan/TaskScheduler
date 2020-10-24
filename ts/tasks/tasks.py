@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from subprocess import Popen
 from typing import Iterable, Callable, Tuple, Any, Set
 
 
@@ -97,7 +98,12 @@ class ShellTask(Task):
         self.__command = command
 
     def __call__(self, *args, **kwargs):
-        ret = os.system(self.__command)
+        job = Popen(self.__command, shell=True)
+        try:
+            ret = job.wait()
+        except KeyboardInterrupt:
+            job.terminate()
+            return False, None
         self._result = ret
         return ret == 0, ret
 
