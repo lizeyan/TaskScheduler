@@ -77,7 +77,7 @@ class Task(object):
 
 class EmptyTask(Task):
     def __call__(self, *args, **kwargs) -> Tuple[bool, Any]:
-        pass
+        return True, None
 
 
 class ShellTask(Task):
