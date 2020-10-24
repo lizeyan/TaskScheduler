@@ -103,6 +103,11 @@ class Task(object):
         return id(self)
 
 
+class EmptyTask(Task):
+    def __call__(self, *args, **kwargs) -&gt; Tuple[bool, Any]:
+        pass
+
+
 class ShellTask(Task):
     def __str__(self):
         return self.__str
@@ -267,6 +272,25 @@ class ReadFileTask(Task):
 </details>
 </dd>
 </dl>
+</dd>
+<dt id="ts.tasks.tasks.EmptyTask"><code class="flex name class">
+<span>class <span class="ident">EmptyTask</span></span>
+<span>(</span><span>name, *, dependencies: Iterable[<a title="ts.tasks.tasks.Task" href="#ts.tasks.tasks.Task">Task</a>] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>:param dependencies:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EmptyTask(Task):
+    def __call__(self, *args, **kwargs) -&gt; Tuple[bool, Any]:
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="ts.tasks.tasks.Task" href="#ts.tasks.tasks.Task">Task</a></li>
+</ul>
 </dd>
 <dt id="ts.tasks.tasks.GenerateFileTask"><code class="flex name class">
 <span>class <span class="ident">GenerateFileTask</span></span>
@@ -489,6 +513,7 @@ class ReadFileTask(Task):
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="ts.tasks.tasks.CallableTask" href="#ts.tasks.tasks.CallableTask">CallableTask</a></li>
+<li><a title="ts.tasks.tasks.EmptyTask" href="#ts.tasks.tasks.EmptyTask">EmptyTask</a></li>
 <li><a title="ts.tasks.tasks.GenerateFileTask" href="#ts.tasks.tasks.GenerateFileTask">GenerateFileTask</a></li>
 <li><a title="ts.tasks.tasks.ReadFileTask" href="#ts.tasks.tasks.ReadFileTask">ReadFileTask</a></li>
 <li><a title="ts.tasks.tasks.ShellTask" href="#ts.tasks.tasks.ShellTask">ShellTask</a></li>
@@ -618,6 +643,9 @@ def result(self) -&gt; Any:
 <ul class="">
 <li><code><a title="ts.tasks.tasks.CallableTask.need_rerun" href="#ts.tasks.tasks.CallableTask.need_rerun">need_rerun</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="ts.tasks.tasks.EmptyTask" href="#ts.tasks.tasks.EmptyTask">EmptyTask</a></code></h4>
 </li>
 <li>
 <h4><code><a title="ts.tasks.tasks.GenerateFileTask" href="#ts.tasks.tasks.GenerateFileTask">GenerateFileTask</a></code></h4>
