@@ -57,6 +57,7 @@ class DAG(object):
         return OrderedSet(filter(lambda edge: edge[0] == node, self._edges))
 
     def _is_acyclic(self) -> bool:
+        # TODO: optimize
         left = self._nodes
         while len(left) > 0:
             visited = OrderedSet()

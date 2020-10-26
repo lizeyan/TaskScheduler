@@ -85,6 +85,7 @@ class Project(object):
         :param tasks: A iterable of tasks
         :param history_path: if path is not valid
         """
+        logger.debug(f"Project tasks: {tasks}")
         self._history = ProjectHistory.load(history_path)
         self._tasks = set() if tasks is None else set(tasks)  # type: Set[Task]
         self._dependency_graph = None
@@ -163,6 +164,7 @@ class Project(object):
         return self._tasks
 
     def _build_dependency_graph(self):
+        logger.debug("building dependency graph")
         nodes = self._tasks
         edges = reduce(
             lambda a, b: a | b,
