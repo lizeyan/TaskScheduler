@@ -18,7 +18,7 @@ class DAG(object):
     class NotDAGError(RuntimeError):
         pass
 
-    def __init__(self, nodes: Iterable[T], edges: Iterable[Edge], T=Task):
+    def __init__(self, nodes: Iterable[T], edges: Iterable[Edge], T=Task, check_dag=True):
         self.T = T
         self._nodes = OrderedSet(nodes)
         self._edges = OrderedSet(edges)
@@ -35,7 +35,7 @@ class DAG(object):
             self._sink = next(iter(filter(lambda v: len(self.out_edges(v)) == 0, self._nodes)))
         except StopIteration:
             self._sink = None
-        if not self._is_acyclic():
+        if check_dag and (not self._is_acyclic()):
             raise self.NotDAGError(f"Graph is not DAG: {self}")
 
     def in_edges(self, node: T) -> OrderedSet[Edge]:
@@ -76,16 +76,16 @@ class DAG(object):
     def _is_acyclic(self) -> bool:
         # TODO: optimize
         left = self._nodes
-        left_no_out_edges = list(filter(lambda v: len(self.out_edges(v)) == 0, left))
+        left_no_in_edges = list(filter(lambda v: len(self.in_edges(v)) == 0, left))
         while len(left) > 0:
             visited = OrderedSet()
-            if len(left_no_out_edges) <= 0:
+            if len(left_no_in_edges) <= 0:
                 return False
-            no_cycle = self.__dfs(left_no_out_edges[0], visited)
+            no_cycle = self.__dfs(left_no_in_edges[0], visited, forward=True)
             if not no_cycle:
                 return False
             left = left - visited
-            left_no_out_edges = left_no_out_edges - visited
+            left_no_in_edges = left_no_in_edges - visited
         return True
 
     def dependency_subgraph(self, node: T) -> "DAG":

@@ -89,7 +89,7 @@ class Project(object):
         self._history = ProjectHistory.load(history_path)
         self._tasks = set() if tasks is None else set(tasks)  # type: Set[Task]
         self._dependency_graph = None
-        self._build_dependency_graph()
+        self._build_dependency_graph(check_dag=False)
 
         root = EmptyTask("root", dependencies=list(filter(lambda x: len(self.graph.in_edges(x)) == 0, self.graph.nodes)))
         self._tasks.add(root)
@@ -163,7 +163,7 @@ class Project(object):
     def tasks(self):
         return self._tasks
 
-    def _build_dependency_graph(self):
+    def _build_dependency_graph(self, check_dag=True):
         logger.debug("building dependency graph")
         nodes = self._tasks
         edges = reduce(
@@ -171,7 +171,7 @@ class Project(object):
             [set((task, d_task) for d_task in task.dependencies) for task in self._tasks],
             set()
         )
-        self._dependency_graph = DAG(nodes, edges)
+        self._dependency_graph = DAG(nodes, edges, check_dag=check_dag)
         return self
 
     def run_task(self, task: Task, n_jobs: int, load_average: float, echo_only: bool):
