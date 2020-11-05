@@ -173,4 +173,5 @@ pip install -r requirements-dev.txt
 - [ ] record function outputs
 - [ ] function style examples
 - [ ] lazy evaluation task templates
+- [ ] 支持中心化地分配资源
 
