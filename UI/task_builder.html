@@ -27,7 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from collections import defaultdict, OrderedDict
-from functools import reduce, partial
+from functools import reduce, partial, lru_cache
 from itertools import product
 from pathlib import Path
 from typing import Union, Callable, Iterable, Tuple, List, Dict, Set
@@ -68,6 +68,11 @@ def __if_func_accept_kwargs(func):
     return any(_.kind == inspect.Parameter.VAR_KEYWORD for _ in x.parameters.values())
 
 
+@lru_cache(maxsize=None)
+def __get_jinja_template(template: str):
+    return Template(template)
+
+
 def _render(
         _original: Union[None, str, Path, Task, Iterable[Union[str, Path, Task]]],
         _params
@@ -89,11 +94,11 @@ def _render(
     _ret = []
     for _item in _original:
         if isinstance(_item, str):
-            _ret.append(Template(_item).render(
+            _ret.append(__get_jinja_template(_item).render(
                 **_params
             ))
         elif isinstance(_item, Path):
-            _ret.append(Path(Template(str(_item)).render(
+            _ret.append(Path(__get_jinja_template(str(_item)).render(
                 **_params
             )))
         else:

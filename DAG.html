@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import os
+from collections import defaultdict
 from typing import TypeVar, Iterable, Tuple, Set, Union, FrozenSet, MutableSet
 
 from ordered_set import OrderedSet
@@ -35,6 +36,9 @@ from .tasks import Task
 
 
 class DAG(object):
+    &#34;&#34;&#34;
+    A immutable DAG class
+    &#34;&#34;&#34;
     T = TypeVar(&#39;T&#39;)
     Edge = Tuple[T, T]
     SetLike = Union[OrderedSet[T], Set[T], FrozenSet[T], MutableSet[T]]
@@ -46,8 +50,27 @@ class DAG(object):
         self.T = T
         self._nodes = OrderedSet(nodes)
         self._edges = OrderedSet(edges)
+        self._in_edges = defaultdict(OrderedSet)
+        self._out_edges = defaultdict(OrderedSet)
+        for edge in self._edges:
+            self._in_edges[edge[1]].add(edge)
+            self._out_edges[edge[0]].add(edge)
+        try:
+            self._source = next(iter(filter(lambda v: len(self.in_edges(v)) == 0, self._nodes)))
+        except StopIteration:
+            self._source = None
+        try:
+            self._sink = next(iter(filter(lambda v: len(self.out_edges(v)) == 0, self._nodes)))
+        except StopIteration:
+            self._sink = None
         if not self._is_acyclic():
             raise self.NotDAGError(f&#34;Graph is not DAG: {self}&#34;)
+
+    def in_edges(self, node: T) -&gt; OrderedSet[Edge]:
+        return self._in_edges.get(node, OrderedSet())
+
+    def out_edges(self, node: T) -&gt; OrderedSet[Edge]:
+        return self._out_edges.get(node, OrderedSet())
 
     def remove_node(self, node: T) -&gt; &#34;DAG&#34;:
         return DAG(
@@ -72,30 +95,25 @@ class DAG(object):
 
     @property
     def source(self):
-        return next(iter(filter(lambda v: len(self.in_edges(v)) == 0, self._nodes)))
+        return self._source
 
     @property
     def sink(self):
-        return next(iter(filter(lambda v: len(self.out_edges(v)) == 0, self._nodes)))
-
-    def in_edges(self, node: T) -&gt; OrderedSet[Edge]:
-        return OrderedSet(filter(lambda edge: edge[1] == node, self._edges))
-
-    def out_edges(self, node: T) -&gt; OrderedSet[Edge]:
-        return OrderedSet(filter(lambda edge: edge[0] == node, self._edges))
+        return self._sink
 
     def _is_acyclic(self) -&gt; bool:
         # TODO: optimize
         left = self._nodes
+        left_no_out_edges = list(filter(lambda v: len(self.out_edges(v)) == 0, left))
         while len(left) &gt; 0:
             visited = OrderedSet()
-            no_out_edges = list(filter(lambda v: len(self.out_edges(v)) == 0, left))
-            if len(no_out_edges) &lt;= 0:
+            if len(left_no_out_edges) &lt;= 0:
                 return False
-            no_cycle = self.__dfs(no_out_edges[0], visited)
+            no_cycle = self.__dfs(left_no_out_edges[0], visited)
             if not no_cycle:
                 return False
             left = left - visited
+            left_no_out_edges = left_no_out_edges - visited
         return True
 
     def dependency_subgraph(self, node: T) -&gt; &#34;DAG&#34;:
@@ -193,12 +211,15 @@ class DAG(object):
 <span>(</span><span>nodes: Iterable[~T], edges: Iterable[Tuple[~T, ~T]], T=ts.tasks.tasks.Task)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>A immutable DAG class</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DAG(object):
+    &#34;&#34;&#34;
+    A immutable DAG class
+    &#34;&#34;&#34;
     T = TypeVar(&#39;T&#39;)
     Edge = Tuple[T, T]
     SetLike = Union[OrderedSet[T], Set[T], FrozenSet[T], MutableSet[T]]
@@ -210,8 +231,27 @@ class DAG(object):
         self.T = T
         self._nodes = OrderedSet(nodes)
         self._edges = OrderedSet(edges)
+        self._in_edges = defaultdict(OrderedSet)
+        self._out_edges = defaultdict(OrderedSet)
+        for edge in self._edges:
+            self._in_edges[edge[1]].add(edge)
+            self._out_edges[edge[0]].add(edge)
+        try:
+            self._source = next(iter(filter(lambda v: len(self.in_edges(v)) == 0, self._nodes)))
+        except StopIteration:
+            self._source = None
+        try:
+            self._sink = next(iter(filter(lambda v: len(self.out_edges(v)) == 0, self._nodes)))
+        except StopIteration:
+            self._sink = None
         if not self._is_acyclic():
             raise self.NotDAGError(f&#34;Graph is not DAG: {self}&#34;)
+
+    def in_edges(self, node: T) -&gt; OrderedSet[Edge]:
+        return self._in_edges.get(node, OrderedSet())
+
+    def out_edges(self, node: T) -&gt; OrderedSet[Edge]:
+        return self._out_edges.get(node, OrderedSet())
 
     def remove_node(self, node: T) -&gt; &#34;DAG&#34;:
         return DAG(
@@ -236,30 +276,25 @@ class DAG(object):
 
     @property
     def source(self):
-        return next(iter(filter(lambda v: len(self.in_edges(v)) == 0, self._nodes)))
+        return self._source
 
     @property
     def sink(self):
-        return next(iter(filter(lambda v: len(self.out_edges(v)) == 0, self._nodes)))
-
-    def in_edges(self, node: T) -&gt; OrderedSet[Edge]:
-        return OrderedSet(filter(lambda edge: edge[1] == node, self._edges))
-
-    def out_edges(self, node: T) -&gt; OrderedSet[Edge]:
-        return OrderedSet(filter(lambda edge: edge[0] == node, self._edges))
+        return self._sink
 
     def _is_acyclic(self) -&gt; bool:
         # TODO: optimize
         left = self._nodes
+        left_no_out_edges = list(filter(lambda v: len(self.out_edges(v)) == 0, left))
         while len(left) &gt; 0:
             visited = OrderedSet()
-            no_out_edges = list(filter(lambda v: len(self.out_edges(v)) == 0, left))
-            if len(no_out_edges) &lt;= 0:
+            if len(left_no_out_edges) &lt;= 0:
                 return False
-            no_cycle = self.__dfs(no_out_edges[0], visited)
+            no_cycle = self.__dfs(left_no_out_edges[0], visited)
             if not no_cycle:
                 return False
             left = left - visited
+            left_no_out_edges = left_no_out_edges - visited
         return True
 
     def dependency_subgraph(self, node: T) -&gt; &#34;DAG&#34;:
@@ -427,7 +462,7 @@ def nodes(self) -&gt; OrderedSet[T]:
 </summary>
 <pre><code class="python">@property
 def sink(self):
-    return next(iter(filter(lambda v: len(self.out_edges(v)) == 0, self._nodes)))</code></pre>
+    return self._sink</code></pre>
 </details>
 </dd>
 <dt id="ts.DAG.DAG.source"><code class="name">var <span class="ident">source</span></code></dt>
@@ -439,7 +474,7 @@ def sink(self):
 </summary>
 <pre><code class="python">@property
 def source(self):
-    return next(iter(filter(lambda v: len(self.in_edges(v)) == 0, self._nodes)))</code></pre>
+    return self._source</code></pre>
 </details>
 </dd>
 </dl>
@@ -506,7 +541,7 @@ def source(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def in_edges(self, node: T) -&gt; OrderedSet[Edge]:
-    return OrderedSet(filter(lambda edge: edge[1] == node, self._edges))</code></pre>
+    return self._in_edges.get(node, OrderedSet())</code></pre>
 </details>
 </dd>
 <dt id="ts.DAG.DAG.out_edges"><code class="name flex">
@@ -519,7 +554,7 @@ def source(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def out_edges(self, node: T) -&gt; OrderedSet[Edge]:
-    return OrderedSet(filter(lambda edge: edge[0] == node, self._edges))</code></pre>
+    return self._out_edges.get(node, OrderedSet())</code></pre>
 </details>
 </dd>
 <dt id="ts.DAG.DAG.remove_node"><code class="name flex">
