@@ -10,6 +10,11 @@ from loguru import logger
 from ..tasks import Task, ShellTask, CallableTask, ReadFileTask, GenerateFileTask
 
 
+def import_tasks(path):
+    with open(path, 'r') as f:
+        exec(f.read())
+
+
 def clear():
     global _task_target_file_dict
     global _task_builder_global_tasks

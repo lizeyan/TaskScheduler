@@ -11,7 +11,8 @@ __all__ = [
     "task", "task_product",
     "Task", "ShellTask", "CallableTask",
     "str_product",
-    "cli"
+    "cli",
+    "import_tasks",
 ]
 
 __version__ = f'0.0.1.2'
