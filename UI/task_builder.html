@@ -38,6 +38,11 @@ from loguru import logger
 from ..tasks import Task, ShellTask, CallableTask, ReadFileTask, GenerateFileTask
 
 
+def import_tasks(path):
+    with open(path, &#39;r&#39;) as f:
+        exec(f.read())
+
+
 def clear():
     global _task_target_file_dict
     global _task_builder_global_tasks
@@ -292,6 +297,20 @@ def _all_built_tasks():
     Task.clear()</code></pre>
 </details>
 </dd>
+<dt id="ts.UI.task_builder.import_tasks"><code class="name flex">
+<span>def <span class="ident">import_tasks</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def import_tasks(path):
+    with open(path, &#39;r&#39;) as f:
+        exec(f.read())</code></pre>
+</details>
+</dd>
 <dt id="ts.UI.task_builder.task"><code class="name flex">
 <span>def <span class="ident">task</span></span>(<span>runner: Union[str, Callable], name: str = None, depend: Union[Iterable[Union[str, pathlib.Path, <a title="ts.tasks.tasks.Task" href="../tasks/tasks.html#ts.tasks.tasks.Task">Task</a>]], pathlib.Path, str, <a title="ts.tasks.tasks.Task" href="../tasks/tasks.html#ts.tasks.tasks.Task">Task</a>] = None, target: Union[Iterable[Union[str, pathlib.Path]], pathlib.Path, str, <a title="ts.tasks.tasks.Task" href="../tasks/tasks.html#ts.tasks.tasks.Task">Task</a>] = None, **template_kwargs) ‑> <a title="ts.tasks.tasks.Task" href="../tasks/tasks.html#ts.tasks.tasks.Task">Task</a></span>
 </code></dt>
@@ -400,6 +419,7 @@ def _all_built_tasks():
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="ts.UI.task_builder.clear" href="#ts.UI.task_builder.clear">clear</a></code></li>
+<li><code><a title="ts.UI.task_builder.import_tasks" href="#ts.UI.task_builder.import_tasks">import_tasks</a></code></li>
 <li><code><a title="ts.UI.task_builder.task" href="#ts.UI.task_builder.task">task</a></code></li>
 <li><code><a title="ts.UI.task_builder.task_product" href="#ts.UI.task_builder.task_product">task_product</a></code></li>
 </ul>

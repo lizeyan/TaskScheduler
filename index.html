@@ -40,7 +40,8 @@ __all__ = [
     &#34;task&#34;, &#34;task_product&#34;,
     &#34;Task&#34;, &#34;ShellTask&#34;, &#34;CallableTask&#34;,
     &#34;str_product&#34;,
-    &#34;cli&#34;
+    &#34;cli&#34;,
+    &#34;import_tasks&#34;,
 ]
 
 __version__ = f&#39;0.0.1.2&#39;
@@ -77,6 +78,20 @@ __version_minor__ = f&#39;{getoutput(&#34;git rev-parse HEAD&#34;)[:10]}@{getout
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="ts.import_tasks"><code class="name flex">
+<span>def <span class="ident">import_tasks</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def import_tasks(path):
+    with open(path, &#39;r&#39;) as f:
+        exec(f.read())</code></pre>
+</details>
+</dd>
 <dt id="ts.str_product"><code class="name flex">
 <span>def <span class="ident">str_product</span></span>(<span>template: str, **kwargs) ‑> List[str]</span>
 </code></dt>
@@ -509,6 +524,7 @@ def result(self) -&gt; Any:
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="ts.import_tasks" href="#ts.import_tasks">import_tasks</a></code></li>
 <li><code><a title="ts.str_product" href="#ts.str_product">str_product</a></code></li>
 <li><code><a title="ts.task" href="#ts.task">task</a></code></li>
 <li><code><a title="ts.task_product" href="#ts.task_product">task_product</a></code></li>
