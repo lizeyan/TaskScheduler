@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">import os
 from collections import defaultdict
-from typing import TypeVar, Iterable, Tuple, Set, Union, FrozenSet, MutableSet
+from typing import TypeVar, Iterable, Tuple, Set, Union, FrozenSet, MutableSet, Callable
 
 from ordered_set import OrderedSet
 
@@ -150,17 +150,21 @@ class DAG(object):
     def __hash__(self):
         return hash(frozenset(self.nodes) | frozenset(self.edges))
 
-    def format_subtree(self, node: T = None) -&gt; str:
-
+    def format_subtree(self, node: T = None, node_formatter: Callable[[T], str] = None) -&gt; str:
+        if node_formatter is None:
+            def node_formatter(_):
+                return str(_)
         return os.linesep.join(
-            [f&#39;{node}&#39;] +
-            self.format_add_bar([self.__indent_formatted(self.format_subtree(v)) for u, v in self.out_edges(node)])
+            [f&#39;{node_formatter(node)}&#39;] +
+            self.format_add_bar([self.__indent_formatted(self.format_subtree(v, node_formatter=node_formatter))
+                                 for u, v in self.out_edges(node)])
         )
 
-    def format_tree(self) -&gt; str:
+    def format_tree(self, node_formatter: Callable[[T], str] = None) -&gt; str:
         ret = os.linesep.join(
             self.format_add_bar([
-                self.__indent_formatted(self.format_subtree(_)) for _ in self.nodes if len(self.in_edges(_)) == 0
+                self.__indent_formatted(self.format_subtree(_, node_formatter=node_formatter))
+                for _ in self.nodes if len(self.in_edges(_)) == 0
             ])
         )
 
@@ -331,17 +335,21 @@ class DAG(object):
     def __hash__(self):
         return hash(frozenset(self.nodes) | frozenset(self.edges))
 
-    def format_subtree(self, node: T = None) -&gt; str:
-
+    def format_subtree(self, node: T = None, node_formatter: Callable[[T], str] = None) -&gt; str:
+        if node_formatter is None:
+            def node_formatter(_):
+                return str(_)
         return os.linesep.join(
-            [f&#39;{node}&#39;] +
-            self.format_add_bar([self.__indent_formatted(self.format_subtree(v)) for u, v in self.out_edges(node)])
+            [f&#39;{node_formatter(node)}&#39;] +
+            self.format_add_bar([self.__indent_formatted(self.format_subtree(v, node_formatter=node_formatter))
+                                 for u, v in self.out_edges(node)])
         )
 
-    def format_tree(self) -&gt; str:
+    def format_tree(self, node_formatter: Callable[[T], str] = None) -&gt; str:
         ret = os.linesep.join(
             self.format_add_bar([
-                self.__indent_formatted(self.format_subtree(_)) for _ in self.nodes if len(self.in_edges(_)) == 0
+                self.__indent_formatted(self.format_subtree(_, node_formatter=node_formatter))
+                for _ in self.nodes if len(self.in_edges(_)) == 0
             ])
         )
 
@@ -496,7 +504,7 @@ def source(self):
 </details>
 </dd>
 <dt id="ts.DAG.DAG.format_subtree"><code class="name flex">
-<span>def <span class="ident">format_subtree</span></span>(<span>self, node: ~T = None) ‑> str</span>
+<span>def <span class="ident">format_subtree</span></span>(<span>self, node: ~T = None, node_formatter: Callable[[~T], str] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -504,16 +512,19 @@ def source(self):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def format_subtree(self, node: T = None) -&gt; str:
-
+<pre><code class="python">def format_subtree(self, node: T = None, node_formatter: Callable[[T], str] = None) -&gt; str:
+    if node_formatter is None:
+        def node_formatter(_):
+            return str(_)
     return os.linesep.join(
-        [f&#39;{node}&#39;] +
-        self.format_add_bar([self.__indent_formatted(self.format_subtree(v)) for u, v in self.out_edges(node)])
+        [f&#39;{node_formatter(node)}&#39;] +
+        self.format_add_bar([self.__indent_formatted(self.format_subtree(v, node_formatter=node_formatter))
+                             for u, v in self.out_edges(node)])
     )</code></pre>
 </details>
 </dd>
 <dt id="ts.DAG.DAG.format_tree"><code class="name flex">
-<span>def <span class="ident">format_tree</span></span>(<span>self) ‑> str</span>
+<span>def <span class="ident">format_tree</span></span>(<span>self, node_formatter: Callable[[~T], str] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -521,10 +532,11 @@ def source(self):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def format_tree(self) -&gt; str:
+<pre><code class="python">def format_tree(self, node_formatter: Callable[[T], str] = None) -&gt; str:
     ret = os.linesep.join(
         self.format_add_bar([
-            self.__indent_formatted(self.format_subtree(_)) for _ in self.nodes if len(self.in_edges(_)) == 0
+            self.__indent_formatted(self.format_subtree(_, node_formatter=node_formatter))
+            for _ in self.nodes if len(self.in_edges(_)) == 0
         ])
     )
 

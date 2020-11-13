@@ -85,10 +85,10 @@ class Task(object):
         raise NotImplementedError()
 
     def __repr__(self):
-        return self.name
+        return str(self)
 
     def __str__(self):
-        return self.name
+        return f&#34;{self.name}&#34;
 
     def need_rerun(self, time: float = None) -&gt; bool:
         if time is None:
@@ -503,10 +503,10 @@ class ReadFileTask(Task):
         raise NotImplementedError()
 
     def __repr__(self):
-        return self.name
+        return str(self)
 
     def __str__(self):
-        return self.name
+        return f&#34;{self.name}&#34;
 
     def need_rerun(self, time: float = None) -&gt; bool:
         if time is None:

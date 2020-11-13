@@ -374,10 +374,10 @@ __version_minor__ = f&#39;{getoutput(&#34;git rev-parse HEAD&#34;)[:10]}@{getout
         raise NotImplementedError()
 
     def __repr__(self):
-        return self.name
+        return str(self)
 
     def __str__(self):
-        return self.name
+        return f&#34;{self.name}&#34;
 
     def need_rerun(self, time: float = None) -&gt; bool:
         if time is None:

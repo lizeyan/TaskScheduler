@@ -124,18 +124,21 @@ def run(ctx, n_jobs: int, load_average: float, echo_only: bool, start_over: bool
 @click.argument(&#39;task&#39;, nargs=-1, type=str)
 @click.pass_context
 def tree(ctx, task):
+    def node_formatter(_task: Task):
+        return f&#34;{_task} rerun={project.need_update(_task)}&#34;
     project = ctx.obj[&#39;project&#39;]  # type: Project
     if len(task) &lt;= 0:
-        logger.info(&#34;tree:&#34; + os.linesep + project.graph.format_tree())
+        logger.info(&#34;tree:&#34; + os.linesep + project.graph.format_tree(node_formatter=node_formatter))
         return
     elif isinstance(task, str):
         tasks = [Task.task(task)]
     else:
         tasks = list(map(Task.task, task))
+
     for task in tasks:
         logger.info(f&#39;=&#39; * 40)
         logger.info(f&#39;tree Task {task}&#39;)
-        logger.info(os.linesep + project.graph.format_subtree(task))
+        logger.info(os.linesep + project.graph.format_subtree(task, node_formatter=node_formatter))
 
 
 if __name__ == &#39;__main__&#39;:

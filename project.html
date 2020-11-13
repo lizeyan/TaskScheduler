@@ -126,11 +126,14 @@ class Project(object):
         self._task_finish_condition = Condition()
 
         self._task_status_dict = {
-            task: self.TODO if self._history.need_update(task) else self.SUCCESS for task in self._tasks
+            task: self.TODO if self.need_update(task) else self.SUCCESS for task in self._tasks
         }
         self._tic_dict = {
 
         }
+
+    def need_update(self, task):
+        return self._history.need_update(task)
 
     def is_task_runnable(self, task: Task) -&gt; bool:
         &#34;&#34;&#34;
@@ -301,11 +304,14 @@ class Project(object):
         self._task_finish_condition = Condition()
 
         self._task_status_dict = {
-            task: self.TODO if self._history.need_update(task) else self.SUCCESS for task in self._tasks
+            task: self.TODO if self.need_update(task) else self.SUCCESS for task in self._tasks
         }
         self._tic_dict = {
 
         }
+
+    def need_update(self, task):
+        return self._history.need_update(task)
 
     def is_task_runnable(self, task: Task) -&gt; bool:
         &#34;&#34;&#34;
@@ -557,6 +563,19 @@ def tasks(self):
         True
     )
     return ret</code></pre>
+</details>
+</dd>
+<dt id="ts.project.Project.need_update"><code class="name flex">
+<span>def <span class="ident">need_update</span></span>(<span>self, task)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def need_update(self, task):
+    return self._history.need_update(task)</code></pre>
 </details>
 </dd>
 <dt id="ts.project.Project.run_task"><code class="name flex">
@@ -845,6 +864,7 @@ def load(path: Path) -&gt; &#39;ProjectHistory&#39;:
 <li><code><a title="ts.project.Project.find_runnable" href="#ts.project.Project.find_runnable">find_runnable</a></code></li>
 <li><code><a title="ts.project.Project.graph" href="#ts.project.Project.graph">graph</a></code></li>
 <li><code><a title="ts.project.Project.is_task_runnable" href="#ts.project.Project.is_task_runnable">is_task_runnable</a></code></li>
+<li><code><a title="ts.project.Project.need_update" href="#ts.project.Project.need_update">need_update</a></code></li>
 <li><code><a title="ts.project.Project.run_task" href="#ts.project.Project.run_task">run_task</a></code></li>
 <li><code><a title="ts.project.Project.task_done" href="#ts.project.Project.task_done">task_done</a></code></li>
 <li><code><a title="ts.project.Project.task_started" href="#ts.project.Project.task_started">task_started</a></code></li>

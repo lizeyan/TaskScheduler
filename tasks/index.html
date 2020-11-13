@@ -314,10 +314,10 @@ __all__ = [&#34;Task&#34;, &#34;CallableTask&#34;, &#34;ShellTask&#34;, &#34;Rea
         raise NotImplementedError()
 
     def __repr__(self):
-        return self.name
+        return str(self)
 
     def __str__(self):
-        return self.name
+        return f&#34;{self.name}&#34;
 
     def need_rerun(self, time: float = None) -&gt; bool:
         if time is None:
