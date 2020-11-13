@@ -57,10 +57,10 @@ class Task(object):
         raise NotImplementedError()
 
     def __repr__(self):
-        return self.name
+        return str(self)
 
     def __str__(self):
-        return self.name
+        return f"{self.name}"
 
     def need_rerun(self, time: float = None) -> bool:
         if time is None:

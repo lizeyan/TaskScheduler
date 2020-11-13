@@ -98,11 +98,14 @@ class Project(object):
         self._task_finish_condition = Condition()
 
         self._task_status_dict = {
-            task: self.TODO if self._history.need_update(task) else self.SUCCESS for task in self._tasks
+            task: self.TODO if self.need_update(task) else self.SUCCESS for task in self._tasks
         }
         self._tic_dict = {
 
         }
+
+    def need_update(self, task):
+        return self._history.need_update(task)
 
     def is_task_runnable(self, task: Task) -> bool:
         """

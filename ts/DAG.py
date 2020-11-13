@@ -1,6 +1,6 @@
 import os
 from collections import defaultdict
-from typing import TypeVar, Iterable, Tuple, Set, Union, FrozenSet, MutableSet
+from typing import TypeVar, Iterable, Tuple, Set, Union, FrozenSet, MutableSet, Callable
 
 from ordered_set import OrderedSet
 
@@ -122,17 +122,21 @@ class DAG(object):
     def __hash__(self):
         return hash(frozenset(self.nodes) | frozenset(self.edges))
 
-    def format_subtree(self, node: T = None) -> str:
-
+    def format_subtree(self, node: T = None, node_formatter: Callable[[T], str] = None) -> str:
+        if node_formatter is None:
+            def node_formatter(_):
+                return str(_)
         return os.linesep.join(
-            [f'{node}'] +
-            self.format_add_bar([self.__indent_formatted(self.format_subtree(v)) for u, v in self.out_edges(node)])
+            [f'{node_formatter(node)}'] +
+            self.format_add_bar([self.__indent_formatted(self.format_subtree(v, node_formatter=node_formatter))
+                                 for u, v in self.out_edges(node)])
         )
 
-    def format_tree(self) -> str:
+    def format_tree(self, node_formatter: Callable[[T], str] = None) -> str:
         ret = os.linesep.join(
             self.format_add_bar([
-                self.__indent_formatted(self.format_subtree(_)) for _ in self.nodes if len(self.in_edges(_)) == 0
+                self.__indent_formatted(self.format_subtree(_, node_formatter=node_formatter))
+                for _ in self.nodes if len(self.in_edges(_)) == 0
             ])
         )
 
